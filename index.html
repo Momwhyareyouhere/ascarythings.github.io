@@ -1,0 +1,83 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scary Questions</title>
+</head>
+<body>
+
+    <h1>Scary Questions</h1>
+
+    <label for="name">Your Name:</label>
+    <input type="text" id="name">
+
+    <div id="questions-container"></div>
+
+    <button onclick="submitAnswers()">Submit Answers</button>
+
+    <script>
+        const questions = [
+            "What's your biggest fear?",
+            "Have you ever experienced something paranormal?",
+            "Do you believe in ghosts?",
+            "What would you do if you heard a creepy whisper in the dark?",
+            "Have you ever had a nightmare that felt too real?",
+            "What scares you the most about the unknown?",
+            "Would you go into a haunted house alone?",
+            "Have you ever felt a chilling presence?",
+            "What's the scariest place you've been to?",
+            "Do you believe in curses?"
+        ];
+
+        const answers = [];
+
+        const questionsContainer = document.getElementById("questions-container");
+
+        // Display questions
+        questions.forEach((question, index) => {
+            const questionElement = document.createElement("div");
+            questionElement.innerHTML = `<p>${index + 1}. ${question}</p>`;
+            const answerInput = document.createElement("input");
+            answerInput.type = "text";
+            questionElement.appendChild(answerInput);
+            questionsContainer.appendChild(questionElement);
+        });
+
+        function submitAnswers() {
+            // Get name
+            const name = document.getElementById("name").value;
+
+            // Collect answers
+            const answerInputs = document.querySelectorAll("#questions-container input");
+            answerInputs.forEach((input, index) => {
+                answers.push({
+                    question: questions[index],
+                    answer: input.value
+                });
+            });
+
+            // Send answers to Netlify serverless function
+            fetch("/.netlify/functions/submit-answers", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: name,
+                    answers: answers
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Answers submitted successfully:", data);
+            })
+            .catch(error => {
+                console.error("Error submitting answers:", error);
+            });
+        }
+    </script>
+
+</body>
+</html>
